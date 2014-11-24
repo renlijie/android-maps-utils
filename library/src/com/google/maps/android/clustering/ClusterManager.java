@@ -3,13 +3,12 @@ package com.google.maps.android.clustering;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.MarkerManager;
 import com.google.maps.android.clustering.algo.Algorithm;
-import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm;
+import com.google.maps.android.clustering.algo.GridBasedAlgorithm;
 import com.google.maps.android.clustering.algo.PreCachingAlgorithmDecorator;
 import com.google.maps.android.clustering.view.ClusterRenderer;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
@@ -54,7 +53,7 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
         mClusterMarkers = markerManager.newCollection();
         mMarkers = markerManager.newCollection();
         mRenderer = new DefaultClusterRenderer<T>(context, map, this);
-        mAlgorithm = new PreCachingAlgorithmDecorator<T>(new NonHierarchicalDistanceBasedAlgorithm<T>());
+        mAlgorithm = new PreCachingAlgorithmDecorator<T>(new GridBasedAlgorithm<T>());
         mClusterTask = new ClusterTask();
         mRenderer.onAdd();
     }

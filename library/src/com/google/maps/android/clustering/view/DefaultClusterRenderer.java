@@ -9,7 +9,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Build;
@@ -20,7 +19,6 @@ import android.os.MessageQueue;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -36,18 +34,18 @@ import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.geometry.Point;
 import com.google.maps.android.projection.SphericalMercatorProjection;
-import com.google.maps.android.ui.SquareTextView;
 import com.google.maps.android.ui.IconGenerator;
+import com.google.maps.android.ui.SquareTextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -62,7 +60,6 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
     private final GoogleMap mMap;
     private final IconGenerator mIconGenerator;
     private final ClusterManager<T> mClusterManager;
-    private final float mDensity;
 
     private static final int[] BUCKETS = {10, 20, 50, 100, 200, 500, 1000};
     private ShapeDrawable mColoredCircleBackground;
@@ -113,7 +110,6 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
 
     public DefaultClusterRenderer(Context context, GoogleMap map, ClusterManager<T> clusterManager) {
         mMap = map;
-        mDensity = context.getResources().getDisplayMetrics().density;
         mIconGenerator = new IconGenerator(context);
         mIconGenerator.setContentView(makeSquareTextView(context));
         mIconGenerator.setTextAppearance(R.style.ClusterIcon_TextAppearance);
@@ -162,14 +158,9 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
         mClusterManager.getClusterMarkerCollection().setOnMarkerClickListener(null);
     }
 
-    private LayerDrawable makeClusterBackground() {
+    private Drawable makeClusterBackground() {
         mColoredCircleBackground = new ShapeDrawable(new OvalShape());
-        ShapeDrawable outline = new ShapeDrawable(new OvalShape());
-        outline.getPaint().setColor(0x80ffffff); // Transparent white.
-        LayerDrawable background = new LayerDrawable(new Drawable[]{outline, mColoredCircleBackground});
-        int strokeWidth = (int) (mDensity * 3);
-        background.setLayerInset(1, strokeWidth, strokeWidth, strokeWidth, strokeWidth);
-        return background;
+        return mColoredCircleBackground;
     }
 
     private SquareTextView makeSquareTextView(Context context) {
@@ -177,8 +168,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         squareTextView.setLayoutParams(layoutParams);
         squareTextView.setId(R.id.text);
-        int twelveDpi = (int) (12 * mDensity);
-        squareTextView.setPadding(twelveDpi, twelveDpi, twelveDpi, twelveDpi);
+        squareTextView.setPadding(0, 0, 0, 0);
         return squareTextView;
     }
 
