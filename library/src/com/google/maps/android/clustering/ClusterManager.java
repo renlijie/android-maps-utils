@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.MarkerManager;
 import com.google.maps.android.clustering.algo.Algorithm;
-import com.google.maps.android.clustering.algo.GridBasedAlgorithm;
+import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm;
 import com.google.maps.android.clustering.algo.PreCachingAlgorithmDecorator;
 import com.google.maps.android.clustering.view.ClusterRenderer;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
@@ -25,6 +25,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <li>{@link com.google.android.gms.maps.GoogleMap.OnMarkerClickListener}</li> </ul>
  */
 public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCameraChangeListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
+    public static final int CLUSTER_DISTANCE = 40;
+
     private final MarkerManager mMarkerManager;
     private final MarkerManager.Collection mMarkers;
     private final MarkerManager.Collection mClusterMarkers;
@@ -53,7 +55,8 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
         mClusterMarkers = markerManager.newCollection();
         mMarkers = markerManager.newCollection();
         mRenderer = new DefaultClusterRenderer<T>(context, map, this);
-        mAlgorithm = new PreCachingAlgorithmDecorator<T>(new GridBasedAlgorithm<T>());
+        mAlgorithm = new PreCachingAlgorithmDecorator<T>(
+            new NonHierarchicalDistanceBasedAlgorithm<T>(CLUSTER_DISTANCE));
         mClusterTask = new ClusterTask();
         mRenderer.onAdd();
     }
@@ -170,7 +173,7 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
         if (mPreviousCameraPosition != null && mPreviousCameraPosition.zoom == position.zoom) {
             return;
         }
-        mPreviousCameraPosition = mMap.getCameraPosition();
+        mPreviousCameraPosition = position;
 
         cluster();
     }

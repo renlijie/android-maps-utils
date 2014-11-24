@@ -15,9 +15,12 @@ import java.util.Set;
  * Groups markers into a grid.
  */
 public class GridBasedAlgorithm<T extends ClusterItem> implements Algorithm<T> {
-    private static final int GRID_SIZE = 10;
-
+    private final int gridSize;
     private final Set<T> mItems = Collections.synchronizedSet(new HashSet<T>());
+
+    public GridBasedAlgorithm(int gridSize) {
+      this.gridSize = gridSize;
+    }
 
     @Override
     public void addItem(T item) {
@@ -41,7 +44,7 @@ public class GridBasedAlgorithm<T extends ClusterItem> implements Algorithm<T> {
 
     @Override
     public Set<? extends Cluster<T>> getClusters(double zoom) {
-        long numCells = (long) Math.ceil(256 * Math.pow(2, zoom) / GRID_SIZE);
+        long numCells = (long) Math.ceil(256 * Math.pow(2, zoom) / gridSize);
         SphericalMercatorProjection proj = new SphericalMercatorProjection(numCells);
 
         HashSet<Cluster<T>> clusters = new HashSet<Cluster<T>>();

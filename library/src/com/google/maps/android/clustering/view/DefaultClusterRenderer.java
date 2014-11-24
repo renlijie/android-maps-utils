@@ -50,8 +50,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm.MAX_DISTANCE_AT_ZOOM;
-
 /**
  * The default view for a ClusterManager. Markers are animated in and out of clusters.
  */
@@ -61,7 +59,11 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
     private final IconGenerator mIconGenerator;
     private final ClusterManager<T> mClusterManager;
 
-    private static final int[] BUCKETS = {10, 20, 50, 100, 200, 500, 1000};
+    private static final int[] BUCKETS = {
+            10, 20, 30, 40, 50, 60, 70, 80, 90,
+            100, 200, 300, 400, 500, 600, 700, 800, 900,
+            1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
+            10000};
     private ShapeDrawable mColoredCircleBackground;
 
     /**
@@ -83,7 +85,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
     /**
      * If cluster size is less than this size, display individual markers.
      */
-    private static final int MIN_CLUSTER_SIZE = 4;
+    private static final int MIN_CLUSTER_SIZE = BUCKETS[0];
 
     /**
      * The currently displayed set of clusters.
@@ -186,6 +188,9 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
         if (bucket < BUCKETS[0]) {
             return String.valueOf(bucket);
         }
+        if (bucket % 1000 == 0) {
+            return String.valueOf(bucket / 1000) + "K+";
+        }
         return String.valueOf(bucket) + "+";
     }
 
@@ -270,7 +275,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
      * Determine whether the cluster should be rendered as individual markers or a cluster.
      */
     protected boolean shouldRenderAsCluster(Cluster<T> cluster) {
-        return cluster.getSize() > MIN_CLUSTER_SIZE;
+        return cluster.getSize() >= MIN_CLUSTER_SIZE;
     }
 
     /**
@@ -447,11 +452,11 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
         return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
     }
 
-    private static Point findClosestCluster(List<Point> markers, Point point) {
+    private Point findClosestCluster(List<Point> markers, Point point) {
         if (markers == null || markers.isEmpty()) return null;
 
         // TODO: make this configurable.
-        double minDistSquared = MAX_DISTANCE_AT_ZOOM * MAX_DISTANCE_AT_ZOOM;
+        double minDistSquared = ClusterManager.CLUSTER_DISTANCE * ClusterManager.CLUSTER_DISTANCE;
         Point closest = null;
         for (Point candidate : markers) {
             double dist = distanceSquared(candidate, point);
@@ -701,8 +706,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
             descriptor = BitmapDescriptorFactory.fromBitmap(mIconGenerator.makeIcon(getClusterText(bucket)));
             mIcons.put(bucket, descriptor);
         }
-        // TODO: consider adding anchor(.5, .5) (Individual markers will overlap more often)
-        markerOptions.icon(descriptor);
+        markerOptions.icon(descriptor).anchor(0.5f, 0.5f);
     }
 
     /**
