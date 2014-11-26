@@ -58,6 +58,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
     private final GoogleMap mMap;
     private final IconGenerator mIconGenerator;
     private final ClusterManager<T> mClusterManager;
+    private final float mDensity;
 
     private static final int[] BUCKETS = {
             10, 20, 30, 40, 50, 60, 70, 80, 90,
@@ -112,6 +113,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
 
     public DefaultClusterRenderer(Context context, GoogleMap map, ClusterManager<T> clusterManager) {
         mMap = map;
+        mDensity = context.getResources().getDisplayMetrics().density;
         mIconGenerator = new IconGenerator(context);
         mIconGenerator.setContentView(makeSquareTextView(context));
         mIconGenerator.setTextAppearance(R.style.ClusterIcon_TextAppearance);
@@ -170,7 +172,8 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         squareTextView.setLayoutParams(layoutParams);
         squareTextView.setId(R.id.text);
-        squareTextView.setPadding(0, 0, 0, 0);
+        int sixDpi = (int) (6 * mDensity);
+        squareTextView.setPadding(sixDpi, sixDpi, sixDpi, sixDpi);
         return squareTextView;
     }
 
@@ -200,7 +203,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
      */
     protected int getBucket(Cluster<T> cluster) {
         int size = cluster.getSize();
-        if (size <= BUCKETS[0]) {
+        if (size < BUCKETS[0]) {
             return size;
         }
         for (int i = 0; i < BUCKETS.length - 1; i++) {
