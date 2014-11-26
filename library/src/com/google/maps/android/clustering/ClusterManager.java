@@ -3,6 +3,7 @@ package com.google.maps.android.clustering;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Marker;
@@ -26,10 +27,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCameraChangeListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
     public static final int CLUSTER_DISTANCE = 40;
+    public static final int STARTED_PROCESSING = 0;
+    public static final int FINISHED_PROCESSING = 1;
 
     private final MarkerManager mMarkerManager;
     private final MarkerManager.Collection mMarkers;
     private final MarkerManager.Collection mClusterMarkers;
+    private final Handler mUiHandler;
 
     private Algorithm<T> mAlgorithm;
     private final ReadWriteLock mAlgorithmLock = new ReentrantReadWriteLock();
@@ -45,16 +49,17 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
     private OnClusterItemInfoWindowClickListener<T> mOnClusterItemInfoWindowClickListener;
     private OnClusterClickListener<T> mOnClusterClickListener;
 
-    public ClusterManager(Context context, GoogleMap map) {
-        this(context, map, new MarkerManager(map));
+    public ClusterManager(Context context, GoogleMap map, Handler uiHandler) {
+        this(context, map, uiHandler, new MarkerManager(map));
     }
 
-    public ClusterManager(Context context, GoogleMap map, MarkerManager markerManager) {
+    public ClusterManager(Context context, GoogleMap map, Handler handler, MarkerManager markerManager) {
         mMap = map;
         mMarkerManager = markerManager;
         mClusterMarkers = markerManager.newCollection();
+        mUiHandler = handler;
         mMarkers = markerManager.newCollection();
-        mRenderer = new DefaultClusterRenderer<T>(context, map, this);
+        mRenderer = new DefaultClusterRenderer<T>(context, map, this, mUiHandler);
         mAlgorithm = new PreCachingAlgorithmDecorator<T>(
             new NonHierarchicalDistanceBasedAlgorithm<T>(CLUSTER_DISTANCE));
         mClusterTask = new ClusterTask();
@@ -173,8 +178,9 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
         if (mPreviousCameraPosition != null && mPreviousCameraPosition.zoom == position.zoom) {
             return;
         }
-        mPreviousCameraPosition = position;
 
+        mUiHandler.sendEmptyMessage(STARTED_PROCESSING);
+        mPreviousCameraPosition = position;
         cluster();
     }
 

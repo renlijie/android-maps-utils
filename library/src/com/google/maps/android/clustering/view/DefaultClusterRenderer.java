@@ -58,6 +58,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
     private final GoogleMap mMap;
     private final IconGenerator mIconGenerator;
     private final ClusterManager<T> mClusterManager;
+    private final Handler mUiHandler;
     private final float mDensity;
 
     private static final int[] BUCKETS = {
@@ -111,7 +112,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
     private ClusterManager.OnClusterItemClickListener<T> mItemClickListener;
     private ClusterManager.OnClusterItemInfoWindowClickListener<T> mItemInfoWindowClickListener;
 
-    public DefaultClusterRenderer(Context context, GoogleMap map, ClusterManager<T> clusterManager) {
+    public DefaultClusterRenderer(Context context, GoogleMap map, ClusterManager<T> clusterManager, Handler uiHandler) {
         mMap = map;
         mDensity = context.getResources().getDisplayMetrics().density;
         mIconGenerator = new IconGenerator(context);
@@ -119,6 +120,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
         mIconGenerator.setTextAppearance(R.style.ClusterIcon_TextAppearance);
         mIconGenerator.setBackground(makeClusterBackground());
         mClusterManager = clusterManager;
+        mUiHandler = uiHandler;
     }
 
     @Override
@@ -232,6 +234,8 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
                 if (mNextClusters != null) {
                     // Run the task that was queued up.
                     sendEmptyMessage(RUN_TASK);
+                } else {
+                    mUiHandler.sendEmptyMessage(ClusterManager.FINISHED_PROCESSING);
                 }
                 return;
             }
