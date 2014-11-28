@@ -37,6 +37,8 @@ import com.google.maps.android.projection.SphericalMercatorProjection;
 import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
+import com.triptrack.messaging.MessageType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -236,7 +238,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
                     sendEmptyMessage(RUN_TASK);
                 } else {
                     mUiHandler.sendMessage(mUiHandler.obtainMessage(
-                        ClusterManager.FINISHED_PROCESSING,
+                        MessageType.FINISHED_PROCESSING,
                         mClusterManager.getMarkerCollection().getMarkers().size(),
                         mClusterManager.getClusterMarkerCollection().getMarkers().size()));
                 }

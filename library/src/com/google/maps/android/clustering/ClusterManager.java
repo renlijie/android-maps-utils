@@ -14,6 +14,8 @@ import com.google.maps.android.clustering.algo.PreCachingAlgorithmDecorator;
 import com.google.maps.android.clustering.view.ClusterRenderer;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
+import com.triptrack.messaging.MessageType;
+
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -27,8 +29,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCameraChangeListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
     public static final int CLUSTER_DISTANCE = 40;
-    public static final int STARTED_PROCESSING = 0;
-    public static final int FINISHED_PROCESSING = 1;
 
     private final MarkerManager mMarkerManager;
     private final MarkerManager.Collection mMarkers;
@@ -179,7 +179,7 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
             return;
         }
 
-        mUiHandler.sendMessage(mUiHandler.obtainMessage(STARTED_PROCESSING, 0, 0));
+        mUiHandler.sendMessage(mUiHandler.obtainMessage(MessageType.STARTED_PROCESSING, 0, 0));
         mPreviousCameraPosition = position;
         cluster();
     }
