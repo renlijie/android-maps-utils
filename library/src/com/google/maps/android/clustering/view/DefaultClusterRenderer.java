@@ -37,7 +37,7 @@ import com.google.maps.android.projection.SphericalMercatorProjection;
 import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
-import com.triptrack.messaging.MessageType;
+import com.triptrack.support.MessageType;
 
 import java.util.ArrayList;
 import java.util.Collections;

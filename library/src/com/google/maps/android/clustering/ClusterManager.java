@@ -14,7 +14,8 @@ import com.google.maps.android.clustering.algo.PreCachingAlgorithmDecorator;
 import com.google.maps.android.clustering.view.ClusterRenderer;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
-import com.triptrack.messaging.MessageType;
+import com.triptrack.support.AsyncTaskResult;
+import com.triptrack.support.MessageType;
 
 import java.util.Collection;
 import java.util.Set;
@@ -147,6 +148,7 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
      * Force a re-cluster. You may want to call this after adding new item(s).
      */
     public void cluster() {
+        mUiHandler.sendMessage(mUiHandler.obtainMessage(MessageType.STARTED_PROCESSING, 0, 0));
         mClusterTaskLock.writeLock().lock();
         try {
             // Attempt to cancel the in-flight request.
@@ -179,7 +181,6 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
             return;
         }
 
-        mUiHandler.sendMessage(mUiHandler.obtainMessage(MessageType.STARTED_PROCESSING, 0, 0));
         mPreviousCameraPosition = position;
         cluster();
     }
@@ -197,20 +198,29 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
     /**
      * Runs the clustering algorithm in a background thread, then re-paints when results come back.
      */
-    private class ClusterTask extends AsyncTask<Float, Void, Set<? extends Cluster<T>>> {
+    private class ClusterTask extends AsyncTask<Float, Void, AsyncTaskResult<Set<? extends Cluster<T>>>> {
         @Override
-        protected Set<? extends Cluster<T>> doInBackground(Float... zoom) {
+        protected AsyncTaskResult<Set<? extends Cluster<T>>> doInBackground(Float... zoom) {
             mAlgorithmLock.readLock().lock();
             try {
-                return mAlgorithm.getClusters(zoom[0]);
+                return new AsyncTaskResult(mAlgorithm.getClusters(zoom[0]));
+            } catch(Throwable e) {
+                return new AsyncTaskResult(e);
             } finally {
                 mAlgorithmLock.readLock().unlock();
             }
         }
 
         @Override
-        protected void onPostExecute(Set<? extends Cluster<T>> clusters) {
-            mRenderer.onClustersChanged(clusters);
+        protected void onPostExecute(AsyncTaskResult<Set<? extends Cluster<T>>> result) {
+            if (result.getError() != null) {
+                mUiHandler.sendMessage(mUiHandler.obtainMessage(MessageType.ERROR, result.getError().getMessage()));
+                return;
+            }
+            if (isCancelled()) {
+                return;
+            }
+            mRenderer.onClustersChanged(result.getResult());
         }
     }
 
