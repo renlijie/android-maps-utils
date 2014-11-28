@@ -179,7 +179,7 @@ public class ClusterManager<T extends ClusterItem> implements GoogleMap.OnCamera
             return;
         }
 
-        mUiHandler.sendEmptyMessage(STARTED_PROCESSING);
+        mUiHandler.sendMessage(mUiHandler.obtainMessage(STARTED_PROCESSING, 0, 0));
         mPreviousCameraPosition = position;
         cluster();
     }

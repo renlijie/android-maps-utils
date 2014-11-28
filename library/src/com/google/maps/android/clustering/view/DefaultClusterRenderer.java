@@ -235,7 +235,10 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
                     // Run the task that was queued up.
                     sendEmptyMessage(RUN_TASK);
                 } else {
-                    mUiHandler.sendEmptyMessage(ClusterManager.FINISHED_PROCESSING);
+                    mUiHandler.sendMessage(mUiHandler.obtainMessage(
+                        ClusterManager.FINISHED_PROCESSING,
+                        mClusterManager.getMarkerCollection().getMarkers().size(),
+                        mClusterManager.getClusterMarkerCollection().getMarkers().size()));
                 }
                 return;
             }
