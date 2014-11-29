@@ -1,15 +1,16 @@
 package com.google.maps.android.clustering.algo;
 
-import android.support.v4.util.LongSparseArray;
-import com.google.maps.android.clustering.Cluster;
-import com.google.maps.android.clustering.ClusterItem;
-import com.google.maps.android.geometry.Point;
-import com.google.maps.android.projection.SphericalMercatorProjection;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import android.support.v4.util.LongSparseArray;
+
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.geometry.Point;
+import com.google.maps.android.projection.SphericalMercatorProjection;
 
 /**
  * Groups markers into a grid.
@@ -62,7 +63,6 @@ public class GridBasedAlgorithm<T extends ClusterItem> implements Algorithm<T> {
                     sparseArray.put(coord, cluster);
                     clusters.add(cluster);
                 }
-                item.setCluster(cluster);
                 cluster.add(item);
             }
         }
