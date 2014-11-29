@@ -797,6 +797,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
                     MarkerWithPosition markerWithPosition;
                     if (marker == null) {
                         MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.alpha(0.8f);
                         if (animateFrom != null) {
                             markerOptions.position(animateFrom);
                         } else {
@@ -820,6 +821,7 @@ public class DefaultClusterRenderer<T extends ClusterItem> implements ClusterRen
 
             MarkerOptions markerOptions = new MarkerOptions().
                     position(animateFrom == null ? cluster.getPosition() : animateFrom);
+            markerOptions.alpha(0.8f);
 
             onBeforeClusterRendered(cluster, markerOptions);
 
